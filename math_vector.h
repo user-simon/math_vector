@@ -125,6 +125,8 @@ namespace mv_impl
         const OP& op;
         const std::tuple<const ARGS&...> args;
 
+        // if T is array, get value at index i
+        // otherwise, return value
         template<class T>
         static auto get_value(const T& v, const uint i)
         {
@@ -137,6 +139,7 @@ namespace mv_impl
     public:
         expr(const OP& op, const ARGS&... args) : op(op), args(args...) {}
 
+        // evaluates value at index i
         auto inline operator[](const uint i) const
         {
             const auto& apply_op = [this, i](const ARGS&... a)
@@ -188,6 +191,7 @@ namespace mv_impl
 
         constexpr vector_spec(T data[3]) : base(data), z(data[2]) {}
 
+        // calculates the cross product two vectors
         template<typename U>
         constexpr vector<T, 3> cross(const vector<U, 3>& v) const
         {
@@ -283,16 +287,19 @@ namespace mv_impl
             return false;
         }
 
+        // gets value at index i
         T& operator[](const uint i)
         {
             return data[i];
         }
 
+        // gets value at index i
         T operator[](const uint i) const
         {
             return data[i];
         }
 
+        // performs component-wise comparison of two vectors
         template<class U>
         bool operator==(const vector<U, N>& v) const
         {
@@ -304,6 +311,7 @@ namespace mv_impl
             return true;
         }
 
+        // performs component-wise comparison of two vectors
         template<class U>
         bool operator!=(const vector<U, N>& v) const
         {
@@ -314,16 +322,21 @@ namespace mv_impl
          *  math functions
         */
 
+        // calculates the length squared
         T length2() const
         {
             return dot(*this);
         }
 
+        // calculates the length
+        // equivalent to std::sqrt(length2())
         double length() const
         {
             return std::sqrt(length2());
         }
 
+        // normalizes vector
+        // returns *this if length == 0
         vector<double, 2> normalize() const
         {
             // TODO: return as expression if possible
@@ -335,12 +348,15 @@ namespace mv_impl
             return *this * (1.0 / len);
         }
 
+        // sets length
+        // equivalent to normalize() * s
         template<class U, class = std::enable_if_t<std::is_arithmetic_v<U>>>
         vector<double, 2> scale_to(U s) const
         {
             return normalize() * s;
         }
 
+        // calculates the distance squared
         template<class U>
         double distance2(const vector<U, N>& v) const
         {
@@ -348,18 +364,22 @@ namespace mv_impl
             return delta.length2();
         }
 
+        // calculates the distance
+        // equivalent to std::sqrt(distance2())
         template<class U>
         double distance(const vector<U, N>& v) const
         {
             return std::sqrt(distance2(v));
         }
 
+        // calculates the angle between two vectors
         template<class U>
         double angle(const vector<U, N>& v) const
         {
             return std::acos(dot(v) / std::sqrt(length2() * v.length2()));
         }
 
+        // calculates the dot product of two vectors
         template<class U>
         T dot(const vector<U, N>& v) const
         {
@@ -371,7 +391,8 @@ namespace mv_impl
             }
             return out;
         }
-            
+        
+        // calculates the sum of all components in vector
         T sum() const
         {
             T out = 0;
@@ -383,6 +404,8 @@ namespace mv_impl
             return out;
         }
 
+        // calculates the absolute value of all components in vector
+        // lazily evaluated
         MV_EXPR abs() const
         {
             return MV_UN_EXPR(std::abs, *this);
@@ -409,6 +432,7 @@ namespace mv_impl
             return MV_UN_EXPR(U, *this);
         }
 
+        // serializes vector to string
         std::string to_string(bool line_breaks = true) const
         {
             std::string out = "";
@@ -425,6 +449,7 @@ namespace mv_impl
             return out;
         }
 
+        // serializes vector to string with name
         std::string to_string(const std::string& name, bool line_breaks = true) const
         {
             return name + (line_breaks ? "\n" : "  ") + to_string(line_breaks);
