@@ -7,6 +7,8 @@
 
 NOTICE: It might be good to clarify that I made this library for fun and for use in various personal projects, so don't use it for anything super important as it might contain some bugs.
 
+Also requires C++17 (or newer).
+
 ---
 
 Vector class made to support dimensions up to UINT_MAX, with specialized access to individual components in common vector sizes (2 through 4). If, for example, you had a 2D vector, you could access its components either by index (`vector[0]`, `vector[1]`) or by name (`vector.x`, `vector.y`). Either methods will modify and access the same memory through use of references, so `vector[0] = 5` is equivalent to `vector.x = 5`. 
