@@ -33,11 +33,11 @@ There are operator overloads defined between either a ***vector/expression and a
 | name | description |
 | --- | --- |
 | `length2()` | gets the length squared |
-| `length()` | gets the length. equivalent to std::sqrt(length2()) |
+| `length()` | gets the length. equivalent to `std::sqrt(length2())` |
 | `normalize()` | gets vector divided by length. if length of vector is 0, returns vector |
 | `scale_to(scalar)` | set vector length |
 | `distance2(other_vector)` | gets the distance squared to another vector |
-| `distance(other_vector)` | gets the distance to another vector. equivalent to std::sqrt(distance2(other_vector)) |
+| `distance(other_vector)` | gets the distance to another vector. equivalent to `std::sqrt(distance2(other_vector))` |
 | `angle(other_vector)` | gets the angle to another vector |
 | `dot(other_vector)` | gets the dot product with another vector |
 | `sum()` | gets the sum of all components |
