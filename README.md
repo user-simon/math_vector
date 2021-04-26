@@ -17,7 +17,7 @@ On top of that, I've implemented [Expression Templates](https://en.wikipedia.org
 
 ## Predefined types
 
-| vec2d\<T> | vec3d\<T> | vec4d\<T> |
+| math_vec2d\<T> | math_vec3d\<T> | math_vec4d\<T> |
 | :-: | :-: | :-: |
 | int2d | int3d | int4d |
 | uint2d | uint3d | uint4d |
@@ -55,6 +55,14 @@ Vectors are serialized to string through the `math_vector::to_string` function. 
 | `std::to_string` | equivalent to `vector.to_string`, without line-breaks |
 | `std::ostream::operator<<` | equivalent to `stream << vector.to_string`, with line-breaks, for use with ex. `std::cout` |
 | `std::hash::operator()` | hash specialization, for use in `std::unordered_*` containers |
+
+## (Optional) SFML support
+
+#ifdef SFML
+
+Since I work a bit with SFML, I added an implicit conversion operator from `math_vec2d` and `math_vec3d` to SFML's proprietary` sf::Vector2` and `sf::Vector3`, respectively. 
+
+#endif // SFML
 
 ## Improvements
 
