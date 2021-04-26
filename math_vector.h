@@ -44,14 +44,14 @@
                          }
 
 // defines a type and size alias for math_vector
-#define MV_DEF_TYPE(t, n) using t##n##d = vec##n##d<t>
+#define MV_DEF_TYPE(t, n) using t##n##d = math_vec##n##d<t>
 
 // defines type aliases for math_vector with specified size
-#define MV_DEF_TYPES(n) template<class T> using vec##n##d = math_vector<T, n>; \
-                        MV_DEF_TYPE(int,    n);                                \
-                        MV_DEF_TYPE(uint,   n);                                \
-                        MV_DEF_TYPE(float,  n);                                \
-                        MV_DEF_TYPE(double, n);                                \
+#define MV_DEF_TYPES(n) template<class T> using math_vec##n##d = math_vector<T, n>; \
+                        MV_DEF_TYPE(int,    n);                                     \
+                        MV_DEF_TYPE(uint,   n);                                     \
+                        MV_DEF_TYPE(float,  n);                                     \
+                        MV_DEF_TYPE(double, n);                                     \
 
 // utility for looping over all elements in vector with index
 #define MV_LOOP(i) for (uint i = 0; i < N; i++)
@@ -496,7 +496,7 @@ namespace std
     template<class T, uint N>
     std::string to_string(const math_vector<T, N>& v)
     {
-        return v.to_string();
+        return v.to_string(false);
     }
 
     // ostream specialization for use in ex. std::cout
