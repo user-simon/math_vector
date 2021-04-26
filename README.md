@@ -60,11 +60,11 @@ Vectors are serialized to string through the `math_vector::to_string` function. 
 
 #ifdef SFML
 
-Since I work a bit with SFML, I added an implicit conversion operator from `math_vec2d` and `math_vec3d` to SFML's proprietary` sf::Vector2` and `sf::Vector3`, respectively. 
+Since I work a bit with SFML, I added an implicit conversion operator from `math_vec2d` and `math_vec3d` to SFML's proprietary `sf::Vector2` and `sf::Vector3`, respectively. 
 
 #endif // SFML
 
 ## Improvements
 
 * More thorough tests
-* Return expressions from normalize, scale_to, and cross. Requires some restructuring since expr keeps a reference to its operands, as such any local variables (such as `len` in normalize) would go out of scope before the expression can be applied
+* Return expressions from `normalize`, `scale_to`, and `cross`. Requires some restructuring since `expr` keeps a reference to its operands, as such any local variables (such as `len` in `normalize`) would go out of scope before the expression can be applied. It might also be possible to allow expressions to be applied to scalar types and make most (if not all) math functions in vector return an expression for fully lazy evaluation.
