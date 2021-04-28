@@ -332,7 +332,7 @@ namespace mv_impl
         // equivalent to std::sqrt(length2())
         double length() const
         {
-            return std::sqrt(length2());
+            return std::sqrt((double)length2());
         }
 
         // normalizes vector
@@ -369,14 +369,14 @@ namespace mv_impl
         template<class U>
         double distance(const vector<U, N>& v) const
         {
-            return std::sqrt(distance2(v));
+            return std::sqrt((double)distance2(v));
         }
 
         // calculates the angle between two vectors
         template<class U>
         double angle(const vector<U, N>& v) const
         {
-            return std::acos(dot(v) / std::sqrt(length2() * v.length2()));
+            return std::acos(dot(v) / std::sqrt((double)length2() * v.length2()));
         }
 
         // calculates the dot product of two vectors
