@@ -17,7 +17,7 @@ On top of that, I've implemented [Expression Templates](https://en.wikipedia.org
 
 ## Predefined types
 
-| vec2d\<T> | vec3d\<T> | vec4d\<T> |
+| math_vec2d\<T> | math_vec3d\<T> | math_vec4d\<T> |
 | :-: | :-: | :-: |
 | int2d | int3d | int4d |
 | uint2d | uint3d | uint4d |
@@ -33,11 +33,11 @@ There are operator overloads defined between either a ***vector/expression and a
 | name | description |
 | --- | --- |
 | `length2()` | gets the length squared |
-| `length()` | gets the length. equivalent to std::sqrt(length2()) |
+| `length()` | gets the length. equivalent to `std::sqrt(length2())` |
 | `normalize()` | gets vector divided by length. if length of vector is 0, returns vector |
 | `scale_to(scalar)` | set vector length |
 | `distance2(other_vector)` | gets the distance squared to another vector |
-| `distance(other_vector)` | gets the distance to another vector. equivalent to std::sqrt(distance2(other_vector)) |
+| `distance(other_vector)` | gets the distance to another vector. equivalent to `std::sqrt(distance2(other_vector))` |
 | `angle(other_vector)` | gets the angle to another vector |
 | `dot(other_vector)` | gets the dot product with another vector |
 | `sum()` | gets the sum of all components |
@@ -56,7 +56,15 @@ Vectors are serialized to string through the `math_vector::to_string` function. 
 | `std::ostream::operator<<` | equivalent to `stream << vector.to_string`, with line-breaks, for use with ex. `std::cout` |
 | `std::hash::operator()` | hash specialization, for use in `std::unordered_*` containers |
 
+## (Optional) SFML support
+
+#ifdef SFML
+
+Since I work a bit with SFML, I added an implicit conversion operator from `math_vec2d` and `math_vec3d` to SFML's proprietary `sf::Vector2` and `sf::Vector3`, respectively. 
+
+#endif // SFML
+
 ## Improvements
 
 * More thorough tests
-* Return expressions from normalize, scale_to, and cross. Requires some restructuring since expr keeps a reference to its operands, as such any local variables (such as `len` in normalize) would go out of scope before the expression can be applied
+* Return expressions from `normalize`, `scale_to`, and `cross`. Requires some restructuring since `expr` keeps a reference to its operands, as such any local variables (such as `len` in `normalize`) would go out of scope before the expression can be applied. It might also be possible to allow expressions to be applied to scalar types and make most (if not all) math functions in vector return an expression for fully lazy evaluation.
