@@ -66,5 +66,6 @@ Since I work a bit with SFML, I added an implicit conversion operator from `math
 
 ## Improvements
 
+* Constexpr sqrt function to allow more of the member functions to be constexpr
 * More thorough tests
 * Return expressions from `normalize`, `scale_to`, and `cross`. Requires some restructuring since `expr` keeps a reference to its operands, as such any local variables (such as `len` in `normalize`) would go out of scope before the expression can be applied. It might also be possible to allow expressions to be applied to scalar types and make most (if not all) math functions in vector return an expression for fully lazy evaluation.
