@@ -376,7 +376,7 @@ namespace mv_impl
         // if argument v is omitted, gets the absolute
         // angle of the vector
         template<class U>
-        double angle(const vector<U, N>& v = uint2d(1, 0)) const
+        double angle(const vector<U, N>& v) const
         {
             return std::acos(dot(v) / std::sqrt((double)length2() * v.length2()));
         }
@@ -495,7 +495,8 @@ MV_DEF_UN_OP(-);
 
 namespace mv_util
 {
-    math_vector<double, 2> angle_coords(const double angle)
+    // gets the point on the unit circle represented by the angle
+    inline math_vector<double, 2> angle_coords(const double angle)
     {
         return math_vector<double, 2>
         {
