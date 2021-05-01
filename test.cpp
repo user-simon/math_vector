@@ -91,6 +91,12 @@ TEST(math, linear)
     int2d b(34, 23);
 
     EXPECT_EQ_FL(a.angle(b), 0.10081);
+
+    double angle = 0.10081;
+    double2d coords = mv_util::angle_coords(angle);
+
+    EXPECT_EQ(coords.x, std::cos(angle));
+    EXPECT_EQ(coords.y, std::sin(angle));
     EXPECT_EQ(a.dot(b), 603);
 }
 

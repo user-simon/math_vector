@@ -490,6 +490,22 @@ MV_DEF_UN_OP(+);
 MV_DEF_UN_OP(-);
 
 /*
+ *  vector util
+*/
+
+namespace mv_util
+{
+    math_vector<double, 2> angle_coords(const double angle)
+    {
+        return math_vector<double, 2>
+        {
+            std::cos(angle),
+            std::sin(angle)
+        };
+    }
+}
+
+/*
  *  std overloads and specializations
 */
 
