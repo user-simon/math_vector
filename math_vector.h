@@ -378,8 +378,6 @@ namespace mv_impl
         }
 
         // calculates the delta_angle between two vectors
-        // if argument v is omitted, gets the absolute
-        // delta_angle of the vector
         template<class U>
         double delta_angle(const vector<U, N>& v) const
         {
