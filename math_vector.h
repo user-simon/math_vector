@@ -111,7 +111,7 @@ namespace mv_impl
 
     template<class T>
     constexpr bool has_named_components<T, std::void_t<decltype(T::component_names)>> = true;
-    
+
     /*
      *  expr
      *      class to represent expression at compile time
@@ -260,14 +260,14 @@ namespace mv_impl
         constexpr vector(ARGS... args) : data{ (T)args... }, spec(data) {}
         
         // copy ctor - copies values from other vector
-        constexpr vector(const vector& v) : spec(data)
+        vector(const vector& v) : spec(data)
         {
             apply_values(v);
         }
 
         // application ctor - applies or copies values from another expression or vector, respectively
         template<class SRC, class = std::enable_if_t<is_vec_or_expr<SRC>>>
-        constexpr vector(const SRC& src) : spec(data)
+        vector(const SRC& src) : spec(data)
         {
             apply_values(src);
         }
@@ -277,7 +277,7 @@ namespace mv_impl
         */
 
         // true if length > 0
-        operator bool() const
+        constexpr operator bool() const
         {
             MV_LOOP(i)
             {
@@ -294,14 +294,14 @@ namespace mv_impl
         }
 
         // gets value at index i
-        T operator[](const uint i) const
+        constexpr T operator[](const uint i) const
         {
             return data[i];
         }
 
         // performs component-wise comparison of two vectors
         template<class U>
-        bool operator==(const vector<U, N>& v) const
+        constexpr bool operator==(const vector<U, N>& v) const
         {
             MV_LOOP(i)
             {
@@ -313,7 +313,7 @@ namespace mv_impl
 
         // performs component-wise comparison of two vectors
         template<class U>
-        bool operator!=(const vector<U, N>& v) const
+        constexpr bool operator!=(const vector<U, N>& v) const
         {
             return !(*this == v);
         }
@@ -323,7 +323,7 @@ namespace mv_impl
         */
 
         // calculates the length squared
-        T length2() const
+        constexpr T length2() const
         {
             return dot(*this);
         }
@@ -358,7 +358,7 @@ namespace mv_impl
 
         // calculates the distance squared
         template<class U>
-        double distance2(const vector<U, N>& v) const
+        constexpr double distance2(const vector<U, N>& v) const
         {
             vector<double, N> delta = component_cast<double>() - v;
             return delta.length2();
@@ -373,6 +373,8 @@ namespace mv_impl
         }
 
         // calculates the angle between two vectors
+        // if argument v is omitted, gets the absolute
+        // angle of the vector
         template<class U>
         double angle(const vector<U, N>& v) const
         {
@@ -381,7 +383,7 @@ namespace mv_impl
 
         // calculates the dot product of two vectors
         template<class U>
-        T dot(const vector<U, N>& v) const
+        constexpr T dot(const vector<U, N>& v) const
         {
             T out = 0;
 
@@ -393,7 +395,7 @@ namespace mv_impl
         }
         
         // calculates the sum of all components in vector
-        T sum() const
+        constexpr T sum() const
         {
             T out = 0;
 

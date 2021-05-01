@@ -4,6 +4,17 @@
 #define EXPECT_EQ_FL(a, b) EXPECT_TRUE(std::abs(a - b) < 0.0001)
 
 constexpr uint2d constexpr_a = uint2d(7, 2);
+constexpr float2d constexpr_b = float2d(10.2, 5.6);
+
+TEST(compile_time_evaluation, compile_time_evaluation)
+{
+    constexpr bool   _1 = constexpr_a;
+    constexpr uint   _2 = constexpr_a[0];
+    constexpr bool   _3 = constexpr_a == constexpr_b;
+    constexpr bool   _4 = constexpr_a != constexpr_b;
+    constexpr double _5 = constexpr_a.length2();
+    constexpr uint   _6 = constexpr_a.sum();
+}
 
 TEST(constructors, constructors)
 {
