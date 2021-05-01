@@ -171,6 +171,11 @@ namespace mv_impl
 
         constexpr vector_spec(T data[2]) : x(data[0]), y(data[1]) {}
 
+        double angle() const
+        {
+            return std::atan((double)x / y);
+        }
+
 #ifdef SFML
         template<typename U>
         operator sf::Vector2<U>() const
@@ -372,11 +377,11 @@ namespace mv_impl
             return std::sqrt((double)distance2(v));
         }
 
-        // calculates the angle between two vectors
+        // calculates the delta_angle between two vectors
         // if argument v is omitted, gets the absolute
-        // angle of the vector
+        // delta_angle of the vector
         template<class U>
-        double angle(const vector<U, N>& v) const
+        double delta_angle(const vector<U, N>& v) const
         {
             return std::acos(dot(v) / std::sqrt((double)length2() * v.length2()));
         }
@@ -495,13 +500,13 @@ MV_DEF_UN_OP(-);
 
 namespace mv_util
 {
-    // gets the point on the unit circle represented by the angle
-    inline math_vector<double, 2> angle_coords(const double angle)
+    // gets the point on the unit circle represented by the delta_angle
+    inline math_vector<double, 2> angle_coords(const double delta_angle)
     {
         return math_vector<double, 2>
         {
-            std::cos(angle),
-            std::sin(angle)
+            std::cos(delta_angle),
+            std::sin(delta_angle)
         };
     }
 }

@@ -90,7 +90,8 @@ TEST(math, linear)
     int2d a(13, 7);
     int2d b(34, 23);
 
-    EXPECT_EQ_FL(a.angle(b), 0.10081);
+    EXPECT_EQ_FL(a.angle(), 1.07685495788);
+    EXPECT_EQ_FL(a.delta_angle(b), 0.10081);
 
     double angle = 0.10081;
     double2d coords = mv_util::angle_coords(angle);
