@@ -376,7 +376,7 @@ namespace mv_impl
         // if argument v is omitted, gets the absolute
         // angle of the vector
         template<class U>
-        double angle(const vector<U, N>& v) const
+        double angle(const vector<U, N>& v = uint2d(1, 0)) const
         {
             return std::acos(dot(v) / std::sqrt((double)length2() * v.length2()));
         }
