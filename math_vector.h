@@ -101,7 +101,7 @@ namespace mv_impl
                                  (std::is_arithmetic_v<T> && is_vec_or_expr      <U>);
     
     /*
-     *  has_named components
+     *  has_named_components
      *      true if type has member "component_names"
      *      used for vector::to_string
     */
@@ -173,7 +173,7 @@ namespace mv_impl
 
         double angle() const
         {
-            return std::atan((double)x / y);
+            return std::atan2((double)y, x);
         }
 
 #ifdef SFML
@@ -196,12 +196,10 @@ namespace mv_impl
 
         constexpr vector_spec(T data[3]) : base(data), z(data[2]) {}
 
-        // calculates the cross product two vectors
+        // calculates the cross product with another vector
         template<typename U>
         constexpr vector<T, 3> cross(const vector<U, 3>& v) const
         {
-            // TODO: return as expression if possible
-
             vector<T, 3> out;
 
             out.x = y * v.z - z * v.y;
@@ -254,11 +252,8 @@ namespace mv_impl
          *  ctors
         */
         
-        // value ctor - sets all components to v
-        constexpr vector(T v) : data{ v }, spec(data) {}
-
         // default ctor - sets all components to 0
-        constexpr vector() : vector(0) {}
+        constexpr vector() : data{ 0 }, spec(data) {}
         
         // value ctor - specify a value for each component
         template<class...ARGS, class = std::enable_if_t<sizeof...(ARGS) == N && std::conjunction_v<std::is_arithmetic<ARGS>...>>>
@@ -284,12 +279,7 @@ namespace mv_impl
         // true if length > 0
         constexpr operator bool() const
         {
-            MV_LOOP(i)
-            {
-                if (data[i])
-                    return true;
-            }
-            return false;
+            return sum();
         }
 
         // gets value at index i
@@ -344,8 +334,6 @@ namespace mv_impl
         // returns *this if length == 0
         vector<double, 2> normalize() const
         {
-            // TODO: return as expression if possible
-
             const double len = length();
             
             if (len == 0)
@@ -498,13 +486,13 @@ MV_DEF_UN_OP(-);
 
 namespace mv_util
 {
-    // gets the point on the unit circle represented by the delta_angle
-    inline math_vector<double, 2> angle_coords(const double delta_angle)
+    // gets the point on the unit circle represented by the angle
+    inline math_vector<double, 2> angle_coords(const double angle)
     {
         return math_vector<double, 2>
         {
-            std::cos(delta_angle),
-            std::sin(delta_angle)
+            std::cos(angle),
+            std::sin(angle)
         };
     }
 }

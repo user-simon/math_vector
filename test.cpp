@@ -1,7 +1,5 @@
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include "math_vector.h"
-
-#define EXPECT_EQ_FL(a, b) EXPECT_TRUE(std::abs(a - b) < 0.0001)
 
 constexpr uint2d constexpr_a = uint2d(7, 2);
 constexpr float2d constexpr_b = float2d(10.2, 5.6);
@@ -39,9 +37,6 @@ TEST(constructors, constructors)
 
     EXPECT_TRUE(b.x != a.x);
     EXPECT_TRUE(b.y != a.y);
-
-    float3d c(9.5f);
-    EXPECT_TRUE(c.x == 9.5f, c.y == 9.5f, c.z == 9.5f);
 }
 
 TEST(expressions, expressions)
@@ -80,9 +75,9 @@ TEST(math, length)
 
     EXPECT_EQ(a.length(), std::sqrt(2));
     EXPECT_EQ(b.length(), 5);
-    EXPECT_EQ_FL(a.normalize().length(), 1);
-    EXPECT_EQ_FL(a.scale_to(3).length(), 3);
-    EXPECT_EQ_FL(a.distance(b), 3.60555);
+    EXPECT_FLOAT_EQ(a.normalize().length(), 1);
+    EXPECT_FLOAT_EQ(a.scale_to(3).length(), 3);
+    EXPECT_FLOAT_EQ(a.distance(b), 3.6055512);
 }
 
 TEST(math, linear)
@@ -90,8 +85,8 @@ TEST(math, linear)
     int2d a(13, 7);
     int2d b(34, 23);
 
-    EXPECT_EQ_FL(a.angle(), 1.07685495788);
-    EXPECT_EQ_FL(a.delta_angle(b), 0.10081);
+    EXPECT_FLOAT_EQ(a.angle(), 0.49394137);
+    EXPECT_FLOAT_EQ(a.delta_angle(b), 0.10081789);
 
     double angle = 0.10081;
     double2d coords = mv_util::angle_coords(angle);
@@ -106,7 +101,7 @@ TEST(math, misc)
     double2d a(0.123, 0.987);
     double2d b(-123.321, -987.789);
 
-    EXPECT_EQ_FL(a.sum(), 1.11);
+    EXPECT_FLOAT_EQ(a.sum(), 1.11);
     EXPECT_EQ(double2d(b.abs()), double2d(123.321, 987.789));
 }
 
