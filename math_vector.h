@@ -279,7 +279,12 @@ namespace mv_impl
         // true if length > 0
         constexpr operator bool() const
         {
-            return sum();
+            MV_LOOP(i)
+            {
+                if (data[i])
+                    return true;
+            }
+            return false;
         }
 
         // gets value at index i

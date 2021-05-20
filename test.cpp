@@ -61,6 +61,7 @@ TEST(operators, bool_conversion)
 {
     EXPECT_FALSE(double2d(0, 0));
     EXPECT_TRUE (double2d(0, 1));
+    EXPECT_TRUE (int2d(-1, 1));
 }
 
 TEST(operators, equals)
