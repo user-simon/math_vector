@@ -1,68 +1,80 @@
 #pragma once
 #include <string>
+#include <functional>
 #include <tuple>
 #include <type_traits>
+#include <optional>
 #include <cmath>
 
-// for explicit return types
+// defined for explicit return types
 #define MV_EXPR auto
 
 // standard vector specialization definitions
-#define MV_SPEC_DEFS(n, names) private:                                                         \
-                                   using base = vector_spec<T, n - 1>;                          \
-                               public:                                                          \
-                                  constexpr static char component_names[] = names;              \
-                                  vector_spec& operator= (const vector_spec&) { return *this; }
+#define MV_SPEC_DEFS(n, names)                                       \
+    private:                                                         \
+        using base = vector_spec<T, n - 1>;                          \
+    public:                                                          \
+       constexpr static char component_names[] = names;              \
+       vector_spec& operator= (const vector_spec&) { return *this; }
 
 // defines a binary vector/expression and assignment operator
-#define MV_DEF_OP(op) template<class L, class R,                                                \
-                          class = std::enable_if_t<mv_impl::is_valid_op<L, R>>>                 \
-                      MV_EXPR operator##op (const L& l, const R& r)                             \
-                      {                                                                         \
-                          return mv_impl::expr                                                  \
-                          {                                                                     \
-                            [](const auto& l, const auto& r) { return l op r; },                \
-                            l, r                                                                \
-                          };                                                                    \
-                      }                                                                         \
-                                                                                                \
-                      template<class T, uint N, class R,                                        \
-                          class = std::enable_if_t<mv_impl::is_valid_op<math_vector<T, N>, R>>> \
-                      math_vector<T, N>& operator##op##=(math_vector<T, N>& l, const R& r)      \
-                      {                                                                         \
-                          return l = l op r;                                                    \
-                      }
+#define MV_DEF_BIN_OP(op, strict)                                     \
+    template<class L, class R,                                        \
+        class = std::enable_if_t<mv_impl::is_valid_op<L, R, strict>>> \
+    MV_EXPR operator##op (const L& l, const R& r)                     \
+    {                                                                 \
+        return mv_impl::expr                                          \
+        {                                                             \
+          [](const auto& l, const auto& r) { return l op r; },        \
+          l, r                                                        \
+        };                                                            \
+    }                                                                 \
+                                                                      \
+    template<class L, class R,                                        \
+        class = std::enable_if_t<mv_impl::is_valid_op<L, R, true>>>   \
+    L& operator##op##=(L& l, const R& r)                              \
+    {                                                                 \
+        return l = l op r;                                            \
+    }
 
 // utility for creating a unary expression from operation and operand
 #define MV_UN_EXPR(op, val) mv_impl::expr([](const auto& v) { return op(v); }, val)
 
 // defines a unary vector/expression operator
-#define MV_DEF_UN_OP(op) template<class T, class = std::enable_if_t<mv_impl::is_vec_or_expr<T>>> \
-                         MV_EXPR operator##op (const T& v)                                       \
-                         {                                                                       \
-                             return MV_UN_EXPR(op, v);                                           \
-                         }
+#define MV_DEF_UN_OP(op)                                                    \
+    template<class T, class = std::enable_if_t<mv_impl::is_vec_or_expr<T>>> \
+    MV_EXPR operator##op (T& v)                                             \
+    {                                                                       \
+        return MV_UN_EXPR(op, v);                                           \
+    }
 
 // defines a type and size alias for math_vector
-#define MV_DEF_TYPE(t, n) using t##n##d = math_vec##n##d<t>
+#define MV_DEF_TYPE(t, t_name, n) using t_name##n##d = math_vec##n##d<t>
 
 // defines type aliases for math_vector with specified size
-#define MV_DEF_TYPES(n) template<class T> using math_vec##n##d = math_vector<T, n>; \
-                        MV_DEF_TYPE(int,    n);                                     \
-                        MV_DEF_TYPE(uint,   n);                                     \
-                        MV_DEF_TYPE(float,  n);                                     \
-                        MV_DEF_TYPE(double, n);                                     \
+#define MV_DEF_TYPES(n)                                         \
+    template<class T> using math_vec##n##d = math_vector<T, n>; \
+    MV_DEF_TYPE(char,          char,   n);                      \
+    MV_DEF_TYPE(unsigned char, uchar,  n);                      \
+    MV_DEF_TYPE(int,           int,    n);                      \
+    MV_DEF_TYPE(unsigned int,  uint,   n);                      \
+    MV_DEF_TYPE(float,         float,  n);                      \
+    MV_DEF_TYPE(double,        double, n);                      \
 
 // utility for looping over all elements in vector with index
-#define MV_LOOP(i) for (uint i = 0; i < N; i++)
+#define MV_LOOP(i) for (unsigned i = 0; i < N; i++)
 
 /*
  *  arithmetic type aliases
+ *      define MV_NO_TYPES to avoid potential collisions
 */
 
+#ifndef MV_NO_TYPES
 using uint  = unsigned int;
 using ulong = unsigned long;
 using uchar = unsigned char;
+using byte  = uchar;
+#endif
 
 namespace mv_impl
 {
@@ -73,7 +85,7 @@ namespace mv_impl
     template<class, class...>
     struct expr;
 
-    template<class, uint>
+    template<class, unsigned>
     struct vector;
 
     /*
@@ -87,18 +99,20 @@ namespace mv_impl
     template<class OP, class... ARGS>
     constexpr bool is_vec_or_expr<expr<OP, ARGS...>> = true;
 
-    template<class T, uint N>
+    template<class T, unsigned N>
     constexpr bool is_vec_or_expr<vector<T, N>> = true;
 
     /*
      *  is_valid_op
-     *     true if the two types form a valid vector operation
+     *     true if the two types form a valid vector operation.
+     *     STRICT_ORDERING = true requires the vector to appear
+     *     first in the operation
     */
 
-    template<class T, class U>
+    template<class T, class U, bool STRICT_ORDERING>
     constexpr bool is_valid_op = (is_vec_or_expr      <T> && is_vec_or_expr      <U>) ||
                                  (is_vec_or_expr      <T> && std::is_arithmetic_v<U>) ||
-                                 (std::is_arithmetic_v<T> && is_vec_or_expr      <U>);
+                                 (std::is_arithmetic_v<T> && is_vec_or_expr      <U>) && !STRICT_ORDERING;
     
     /*
      *  has_named_components
@@ -119,16 +133,16 @@ namespace mv_impl
     */
 
     template<class OP, class... ARGS>
-    struct expr
+    class expr
     {
     private:
         const OP& op;
-        const std::tuple<const ARGS&...> args;
-
+        const std::tuple<ARGS...> args;
+        
         // if T is array, get value at index i
         // otherwise, return value
         template<class T>
-        static auto get_value(const T& v, const uint i)
+        constexpr static auto _get_operand(const T& v, const unsigned i)
         {
             if constexpr(is_vec_or_expr<T>)
                 return v[i];
@@ -140,11 +154,11 @@ namespace mv_impl
         expr(const OP& op, const ARGS&... args) : op(op), args(args...) {}
 
         // evaluates value at index i
-        auto inline operator[](const uint i) const
+        constexpr inline auto operator[](const unsigned i) const
         {
             const auto& apply_op = [this, i](const ARGS&... a)
             {
-                return op(get_value(a, i)...);
+                return op(_get_operand(a, i)...);
             };
             return std::apply(apply_op, args);
         }
@@ -155,7 +169,7 @@ namespace mv_impl
      *      provides size-specific functionality of vector
     */
 
-    template<class T, uint N>
+    template<class T, unsigned N>
     struct vector_spec
     {
         constexpr vector_spec(T*) {}
@@ -186,7 +200,7 @@ namespace mv_impl
     };
 
     template<class T>
-    struct vector_spec<T, 3> : vector_spec<T, 2>
+    struct vector_spec<T, 3> : private vector_spec<T, 2>
     {
         MV_SPEC_DEFS(3, "xyz");
 
@@ -219,7 +233,7 @@ namespace mv_impl
     };
 
     template<class T>
-    struct vector_spec<T, 4> : vector_spec<T, 3>
+    struct vector_spec<T, 4> : private vector_spec<T, 3>
     {
         MV_SPEC_DEFS(4, "xyzw");
 
@@ -235,14 +249,14 @@ namespace mv_impl
      *  vector class
     */
 
-    template<typename T, uint N>
+    template<typename T, unsigned N>
     struct vector : public vector_spec<T, N>
     {
         static_assert(std::is_arithmetic_v<T> && N > 1);
         
         using spec = vector_spec<T, N>;
         using type = T;
-        constexpr static uint size = N;
+        constexpr static unsigned size = N;
         constexpr static bool has_named_components = has_named_components<vector>;
         const static vector zero;
 
@@ -260,16 +274,16 @@ namespace mv_impl
         constexpr vector(ARGS... args) : data{ (T)args... }, spec(data) {}
         
         // copy ctor - copies values from other vector
-        vector(const vector& v) : spec(data)
+        inline vector(const vector& v) : spec(data)
         {
-            apply_values(v);
+            eval(v);
         }
 
-        // application ctor - applies or copies values from another expression or vector, respectively
+        // evaluation ctor - evaluates or copies values from another expression or vector, respectively
         template<class SRC, class = std::enable_if_t<is_vec_or_expr<SRC>>>
-        vector(const SRC& src) : spec(data)
+        inline vector(const SRC& src) : spec(data)
         {
-            apply_values(src);
+            eval(src);
         }
 
         /*
@@ -286,15 +300,15 @@ namespace mv_impl
             }
             return false;
         }
-
+        
         // gets value at index i
-        T& operator[](const uint i)
+        T& operator[](const unsigned i)
         {
             return data[i];
         }
 
         // gets value at index i
-        constexpr T operator[](const uint i) const
+        constexpr T operator[](const unsigned i) const
         {
             return data[i];
         }
@@ -335,25 +349,6 @@ namespace mv_impl
             return std::sqrt((double)length2());
         }
 
-        // normalizes vector
-        // returns *this if length == 0
-        vector<double, 2> normalize() const
-        {
-            const double len = length();
-            
-            if (len == 0)
-                return *this;
-            return *this * (1.0 / len);
-        }
-
-        // sets length
-        // equivalent to normalize() * s
-        template<class U, class = std::enable_if_t<std::is_arithmetic_v<U>>>
-        vector<double, 2> scale_to(U s) const
-        {
-            return normalize() * s;
-        }
-
         // calculates the distance squared
         template<class U>
         constexpr double distance2(const vector<U, N>& v) const
@@ -368,6 +363,25 @@ namespace mv_impl
         double distance(const vector<U, N>& v) const
         {
             return std::sqrt((double)distance2(v));
+        }
+
+        // normalizes vector
+        // returns *this if length == 0
+        vector<double, N> normalize() const
+        {
+            const double len = length();
+
+            if (len == 0)
+                return *this;
+            return *this / len;
+        }
+
+        // sets length
+        // equivalent to normalize() * s
+        template<class U, class = std::enable_if_t<std::is_arithmetic_v<U>>>
+        vector<double, N> set_length(U s) const
+        {
+            return normalize() * s;
         }
 
         // calculates the delta_angle between two vectors
@@ -403,19 +417,36 @@ namespace mv_impl
         }
 
         // calculates the absolute value of all components in vector
-        // lazily evaluated
-        MV_EXPR abs() const
+        vector abs() const
         {
             return MV_UN_EXPR(std::abs, *this);
+        }
+
+        // rounds components in vector to nearest whole number
+        vector round() const
+        {
+            return MV_UN_EXPR(std::round, *this);
+        }
+
+        // rounds components in vector to nearest whole number
+        vector floor() const
+        {
+            return MV_UN_EXPR(std::floor, *this);
+        }
+
+        // rounds components in vector to nearest whole number
+        vector ceil() const
+        {
+            return MV_UN_EXPR(std::ceil, *this);
         }
 
         /*
          *  utility
         */
 
-        // applies or copies values from another expression or vector, respectively
+        // evaluates or copies values from another expression or vector, respectively
         template<class SRC, class = std::enable_if_t<is_vec_or_expr<SRC>>>
-        void apply_values(const SRC& src)
+        inline void eval(const SRC& src)
         {
             MV_LOOP(i)
             {
@@ -431,9 +462,12 @@ namespace mv_impl
         }
 
         // serializes vector to string
-        std::string to_string(bool line_breaks = true) const
+        std::string to_string(std::optional<std::string> name = {}, bool line_breaks = false) const
         {
-            std::string out = "";
+            std::string out;
+
+            if (name)
+                out = *name + (line_breaks ? "\n" : "  ");
 
             MV_LOOP(i)
             {
@@ -446,12 +480,6 @@ namespace mv_impl
             }
             return out;
         }
-
-        // serializes vector to string with name
-        std::string to_string(const std::string& name, bool line_breaks = true) const
-        {
-            return name + (line_breaks ? "\n" : "  ") + to_string(line_breaks);
-        }
     };
 }
 
@@ -459,7 +487,7 @@ namespace mv_impl
  *  type defines
 */
 
-template<class T, uint N>
+template<class T, unsigned N>
 using math_vector = mv_impl::vector<T, N>;
 
 MV_DEF_TYPES(2);
@@ -470,20 +498,34 @@ MV_DEF_TYPES(4);
  * static member resolves
 */
 
-template<class T, uint N>
+template<class T, unsigned N>
 const math_vector<T, N> math_vector<T, N>::zero;
 
 /*
  *  operator overloads
 */
 
-MV_DEF_OP(+);
-MV_DEF_OP(-);
-MV_DEF_OP(*);
-MV_DEF_OP(/);
+MV_DEF_BIN_OP(+,  false);
+MV_DEF_BIN_OP(-,  false);
+MV_DEF_BIN_OP(*,  false);
+MV_DEF_BIN_OP(/,  false);
+MV_DEF_BIN_OP(&,  false);
+MV_DEF_BIN_OP(|,  false);
+MV_DEF_BIN_OP(^,  false);
+MV_DEF_BIN_OP(>>, true);
+MV_DEF_BIN_OP(<<, true);
 
-MV_DEF_UN_OP(+);
 MV_DEF_UN_OP(-);
+MV_DEF_UN_OP(+);
+MV_DEF_UN_OP(~);
+
+// specialization for dividing vector by a scalar
+template<class T, unsigned N, class S, class = std::enable_if_t<std::is_arithmetic_v<S>>>
+MV_EXPR operator/(const math_vector<T, N>& v, S s)
+{
+    // ensure the division is only performed once
+    return v * (1.0 / s);
+}
 
 /*
  *  vector util
@@ -508,32 +550,27 @@ namespace mv_util
 
 namespace std
 {
-    template<class T, uint N>
+    template<class T, unsigned N>
     std::string to_string(const math_vector<T, N>& v)
     {
         return v.to_string(false);
     }
 
     // ostream specialization for use in ex. std::cout
-    template<class T, uint N>
+    template<class T, unsigned N>
     std::ostream& operator<<(std::ostream& s, const math_vector<T, N>& v)
     {
         return s << v.to_string();
     }
 
     // hash specialization for use std::unordered_* containers
-    template<typename T, uint N>
+    template<class T, unsigned N>
     struct std::hash<math_vector<T, N>>
     {
-        uint operator()(const math_vector<T, N>& v) const
+        unsigned operator()(const math_vector<T, N>& v) const
         {
-            // since the algorithms used in hash specializations are implementation
-            // dependant for STL types, the hash produced by this specialization
-            // might vary between different compilers. in MSVC, it will use FNV-1a
-            // to compute the hash
-
             std::string_view byte_data = { (char*)v.data, N * sizeof(T) };
-            std::hash<std::string_view> string_hash;
+            static std::hash<std::string_view> string_hash;
 
             return string_hash(byte_data);
         }

@@ -3,7 +3,7 @@
 * Single-header
 * N-dimensional
 * Named components
-* Lazily evaluated through use of [Expression Templates](https://en.wikipedia.org/wiki/Expression_templates)
+* (Mostly) Lazily evaluated through use of [Expression Templates](https://en.wikipedia.org/wiki/Expression_templates)
 
 NOTICE: It might be good to clarify that I made this library for fun and for use in various personal projects, so don't use it for anything super important as it might contain some bugs.
 
@@ -32,17 +32,21 @@ There are operator overloads defined between either a ***vector/expression and a
 
 | name | description |
 | --- | --- |
-| `length2()` | gets the length squared |
-| `length()` | gets the length. equivalent to `std::sqrt(length2())` |
-| `normalize()` | gets vector divided by length. if length of vector is 0, returns vector |
-| `scale_to(scalar)` | set vector length |
-| `distance2(other_vector)` | gets the distance squared to another vector |
-| `distance(other_vector)` | gets the distance to another vector. equivalent to `std::sqrt(distance2(other_vector))` |
-| `angle(other_vector)` | gets the angle to another vector |
-| `dot(other_vector)` | gets the dot product with another vector |
-| `sum()` | gets the sum of all components |
-| `abs()` | gets the absolute value of all components |
+| `length2()` | calculates the length squared |
+| `length()` | calculates the length. equivalent to `std::sqrt(length2())` |
+| `distance2(other_vector)` | calculates the distance squared to another vector |
+| `distance(other_vector)` | calculates the distance to another vector. equivalent to `std::sqrt(distance2(other_vector))` |
+| `normalize()` | calculates vector divided by length. if length of vector is 0, returns vector |
+| `set_length(scalar)` | sets vector length |
+| `delta_angle(other_vector)` | calculates the angle between two vectors |
+| `dot(other_vector)` | calculates the dot product with another vector |
+| `sum()` | calculates the sum of all components |
+| `abs()` | calculates the absolute value of all components |
+| `round()` | rounds components to nearest integer |
+| `floor()` | rounds components to nearest integer down |
+| `ceil()` | rounds components to nearest integer up |
 | `cross(other_vector)` | for 3D vectors only, calculates the cross product with another vector |
+| `angle()` | for 2D vectors only, calculates the angle of the vector to the x-axis |
 
 ## String serialization
 
@@ -66,6 +70,5 @@ Since I work a bit with SFML, I added an implicit conversion operator from `math
 
 ## Improvements
 
-* Constexpr sqrt function to allow more of the member functions to be constexpr
-* More thorough tests
-* Return expressions from `normalize`, `scale_to`, and `cross`. Requires some restructuring since `expr` keeps a reference to its operands, as such any local variables (such as `len` in `normalize`) would go out of scope before the expression can be applied. It might also be possible to allow expressions to be applied to scalar types and make most (if not all) math functions in vector return an expression for fully lazy evaluation.
+* A more cohesive system between expressions and vectors to allow for vector functions to be called on expressions
+* Have more vector functions utilize expression templates
