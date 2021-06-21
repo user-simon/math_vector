@@ -416,6 +416,17 @@ namespace mv_impl
             return out;
         }
 
+        constexpr T prod() const
+        {
+            T out = 0;
+
+            MV_LOOP(i)
+            {
+                out *= data[i];
+            }
+            return out;
+        }
+
         // calculates the absolute value of all components in vector
         vector abs() const
         {
@@ -509,6 +520,7 @@ MV_DEF_BIN_OP(+,  false);
 MV_DEF_BIN_OP(-,  false);
 MV_DEF_BIN_OP(*,  false);
 MV_DEF_BIN_OP(/,  false);
+MV_DEF_BIN_OP(%,  true);
 MV_DEF_BIN_OP(&,  false);
 MV_DEF_BIN_OP(|,  false);
 MV_DEF_BIN_OP(^,  false);

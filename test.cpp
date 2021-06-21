@@ -77,6 +77,10 @@ TEST(operators, mult_div)
 
     float2d f = e / 100;
     EXPECT_EQ(f, float2d(e.x / 100, e.y / 100));
+
+    int2d g(10, 4);
+    int2d h = g % 3;
+    EXPECT_EQ(h, int2d(1, 1));
 }
 
 TEST(operators, bitwise)
