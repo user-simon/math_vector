@@ -54,6 +54,7 @@
 // defines type aliases for math_vector with specified size
 #define MV_DEF_TYPES(n)                                         \
     template<class T> using math_vec##n##d = math_vector<T, n>; \
+    MV_DEF_TYPE(bool,          binary,   n);                    \
     MV_DEF_TYPE(char,          char,   n);                      \
     MV_DEF_TYPE(unsigned char, uchar,  n);                      \
     MV_DEF_TYPE(int,           int,    n);                      \
@@ -461,7 +462,7 @@ namespace mv_impl
         {
             MV_LOOP(i)
             {
-                data[i] = src[i];
+                data[i] = (T)src[i];
             }
         }
 

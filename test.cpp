@@ -37,6 +37,10 @@ TEST(constructors, constructors)
 
     EXPECT_TRUE(b.x != a.x);
     EXPECT_TRUE(b.y != a.y);
+
+    binary2d c = uint2d(5, 0);
+    EXPECT_TRUE(c.x);
+    EXPECT_FALSE(c.y);
 }
 
 TEST(operators, bool_conversion)
