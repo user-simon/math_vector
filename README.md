@@ -1,3 +1,9 @@
+---
+
+### :warning: NOTICE: This project is deprecated in favour of the updated [Dandy library](https://github.com/userexit/dandy)
+
+---
+
 # math_vector
 
 * Single-header
